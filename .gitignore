@@ -1,0 +1,69 @@
+# ─── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.spec
+.Python
+env/
+venv/
+.venv/
+ENV/
+pip-wheel-metadata/
+*.log
+
+# ─── Virtual Environments ─────────────────────────────────────────────────────
+.env
+.env.*
+*.env
+
+# ─── ML Models & Large Data Files ─────────────────────────────────────────────
+models/
+*.h5
+*.pkl
+*.pt
+*.pth
+*.onnx
+data/
+*.csv
+*.parquet
+*.feather
+
+# ─── Reports (auto-generated at runtime) ──────────────────────────────────────
+reports/
+
+# ─── Node / React UI ──────────────────────────────────────────────────────────
+ui/node_modules/
+ui/dist/
+ui/.env
+ui/.env.*
+
+# ─── Tasks / Internal Docs (not for GitHub) ────────────────────────────────────
+tasks/
+
+# ─── IDE & OS ─────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Secrets & Credentials ────────────────────────────────────────────────────
+secrets.yaml
+*.pem
+*.key
+*.cert
+config.local.yaml
+
+# ─── Pytest & Coverage ────────────────────────────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage
+*.cover

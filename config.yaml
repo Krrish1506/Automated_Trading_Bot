@@ -1,0 +1,155 @@
+# ═══════════════════════════════════════════════════════════════════
+# AI Trading Agent — Configuration
+# EUR/USD 5-Minute Timeframe
+# ═══════════════════════════════════════════════════════════════════
+
+symbol: "EUR/USD"
+timeframe_seconds: 300  # 5 minutes
+
+# --- WebSocket Feed ---
+feed:
+  provider: "twelvedata"  # twelvedata | finnhub | oanda | mock
+  # Finnhub (FREE, works in India, real-time zero-delay forex ticks)
+  finnhub_api_key: "d66o32hr01qnh6sfdsjgd66o32hr01qnh6sfdsk0"          # SET VIA ENV: FINNHUB_API_KEY — get free at https://finnhub.io
+  finnhub_symbol: "OANDA:EUR_USD"
+  # Twelve Data (free tier: 800 API calls/day, real-time WebSocket)
+  twelvedata_api_key: "b062829e25e24d84b8164b4ae408ecb5"
+  twelvedata_symbol: "EUR/USD"
+  # OANDA (not available in India)
+  websocket_url: "wss://stream-fxpractice.oanda.com/v3/accounts/{account_id}/pricing/stream"
+  api_key: ""
+  account_id: ""
+  instrument: "EUR_USD"
+  reconnect_delay_base: 1.0
+  reconnect_delay_max: 60.0
+  heartbeat_timeout: 30.0
+
+# ─── Candle Buffer ────────────────────────────────────────────────
+buffer:
+  max_candles: 500
+  warmup_candles: 200  # Minimum candles before generating signals
+
+# ─── Indicator Parameters ────────────────────────────────────────
+indicators:
+  rsi:
+    period: 14
+  holt_winters:
+    alpha: 0.3   # Level smoothing
+    beta: 0.05   # Trend smoothing
+    gamma: 0.1   # Seasonal smoothing (used for adaptive smoothing)
+  macd:
+    fast: 12
+    slow: 26
+    signal: 9
+  atr:
+    period: 14
+  pivot:
+    swing_window: 5
+  alpha_trend:
+    atr_multiplier: 1.0
+    atr_period: 14
+  alpha_trend_plus:
+    atr_multiplier: 1.5
+    adx_period: 14
+    adx_threshold: 20
+    volume_surge_mult: 1.5
+  smc:
+    swing_window: 5
+    order_block_lookback: 10
+  hidden_zone:
+    vol_cluster_window: 20
+    imbalance_threshold: 1.5
+    zone_max_age: 100
+  fibonacci:
+    extension_levels: [1.272, 1.618, 2.0]
+    retracement_levels: [0.382, 0.5, 0.618]
+    vwap_period: 20
+  harmonic:
+    tolerance: 0.05  # Fibonacci ratio tolerance
+    min_leg_bars: 5
+    patterns:
+      gartley:
+        XB: [0.618, 0.618]
+        AC: [0.382, 0.886]
+        BD: [1.272, 1.618]
+        XD: [0.786, 0.786]
+      butterfly:
+        XB: [0.786, 0.786]
+        AC: [0.382, 0.886]
+        BD: [1.618, 2.618]
+        XD: [1.272, 1.618]
+      bat:
+        XB: [0.382, 0.5]
+        AC: [0.382, 0.886]
+        BD: [1.618, 2.618]
+        XD: [0.886, 0.886]
+      crab:
+        XB: [0.382, 0.618]
+        AC: [0.382, 0.886]
+        BD: [2.618, 3.618]
+        XD: [1.618, 1.618]
+  candle_patterns:
+    wick_body_ratio: 2.0
+    engulfing_min_size: 0.0005
+
+# ─── Forecast Model ──────────────────────────────────────────────
+forecast:
+  model_type: "lstm"
+  sequence_length: 30
+  input_features: 12
+  hidden_dim: 128
+  num_layers: 2
+  dropout: 0.2
+  model_path: "models/lstm_eurusd.pt"
+  prediction_horizon: 12  # candles ahead (10-15 range)
+  probability_threshold_buy: 0.65
+  probability_threshold_sell: 0.35
+
+# ─── Decision Engine ─────────────────────────────────────────────
+decision:
+  weights:
+    alpha_trend: 0.15
+    alpha_trend_plus: 0.10
+    smc_structure: 0.20
+    forecast: 0.20
+    harmonic_prz: 0.10
+    fibonacci: 0.05
+    hidden_zone: 0.10
+    holt_winters_rsi: 0.05
+    predictive_macd: 0.05
+  confluence_min: 3  # Minimum confluences required for signal
+
+# ─── Risk Filters ────────────────────────────────────────────────
+risk:
+  max_spread_pips: 3.0
+  volatility_spike_mult: 3.0  # ATR > mult × SMA(ATR) = spike
+  daily_loss_limit_pips: 50.0
+  adx_sideways_threshold: 20
+  max_open_positions: 1
+  max_drawdown_pct: 15.0
+  session_duration_minutes: 180
+
+# ─── Position Sizing ─────────────────────────────────────────────
+position:
+  sl_atr_multiplier: 1.5
+  sl_min_pips: 5.0
+  sl_spread_buffer_pips: 1.0
+  tp_primary: "fibonacci"       # fibonacci | harmonic
+  tp_secondary: "harmonic"
+  min_risk_reward: 1.5
+  risk_per_trade_pct: 2.0       # % of account equity
+
+# ─── Backtest ─────────────────────────────────────────────────────
+backtest:
+  data_path: "data/eurusd_m5.csv"
+  slippage_pips: 0.5
+  spread_pips: 1.5
+  initial_equity: 1000000.0
+  currency: "INR"
+  commission_per_lot: 3.5
+
+# ─── Logging ──────────────────────────────────────────────────────
+logging:
+  level: "INFO"
+  format: "json"
+  performance_tracking: true

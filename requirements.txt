@@ -1,0 +1,31 @@
+# Core async
+asyncio-mqtt>=2.0
+websockets>=12.0
+aiohttp>=3.9
+
+# Numerics
+numpy>=1.26
+pandas>=2.1
+
+# Machine learning
+torch>=2.1
+scikit-learn>=1.4
+
+# Technical analysis helpers
+# (We implement from scratch, but these are useful for validation)
+
+# Configuration
+pyyaml>=6.0
+
+# Data download (for training)
+yfinance>=0.2.40
+
+# Logging
+structlog>=24.1
+
+# Testing
+pytest>=8.0
+pytest-asyncio>=0.23
+
+# Docker health
+uvloop>=0.19; sys_platform != 'win32'
