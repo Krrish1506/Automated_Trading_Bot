@@ -167,6 +167,7 @@ class TestAlphaTrend:
 
     def test_alpha_trend_uptrend(self):
         from indicators.alpha_trend import AlphaTrend
+        from core.types import TrendDirection
 
         at = AlphaTrend(atr_period=14, atr_multiplier=1.0)
         n = 200
@@ -175,11 +176,12 @@ class TestAlphaTrend:
         closes = np.linspace(1.08, 1.10, n)
 
         result = at.compute(highs, lows, closes)
-        assert result["trend_direction"].value == "bullish"
+        assert result["trend_direction"] == TrendDirection.BULLISH
         assert result["atr"] > 0
 
     def test_alpha_trend_downtrend(self):
         from indicators.alpha_trend import AlphaTrend
+        from core.types import TrendDirection
 
         at = AlphaTrend(atr_period=14, atr_multiplier=1.0)
         n = 200
@@ -188,7 +190,7 @@ class TestAlphaTrend:
         closes = np.linspace(1.10, 1.08, n)
 
         result = at.compute(highs, lows, closes)
-        assert result["trend_direction"].value == "bearish"
+        assert result["trend_direction"] == TrendDirection.BEARISH
 
 
 class TestSMCEngine:
@@ -255,7 +257,8 @@ class TestLSTMModel:
             output = model(x)
 
         assert output.shape == (1, 1)
-        assert 0 <= output.item() <= 1  # Sigmoid output
+        # Model returns raw logits; sigmoid gives the probability
+        assert 0 <= torch.sigmoid(output).item() <= 1
 
     def test_inference_latency(self):
         from forecast.model import LSTMForecaster
@@ -293,7 +296,7 @@ class TestTransformerModel:
             output = model(x)
 
         assert output.shape == (1, 1)
-        assert 0 <= output.item() <= 1
+        assert 0 <= torch.sigmoid(output).item() <= 1
 
 
 class TestFeatureBuilder:
@@ -444,6 +447,7 @@ class TestPipelineIntegration:
         from indicators.predictive_macd import PredictiveMACD
         from indicators.pivot_trend import PivotTrend
         from indicators.alpha_trend import AlphaTrend
+        from core.types import TrendDirection
         from indicators.smc_engine import SMCEngine
 
         n = 200
