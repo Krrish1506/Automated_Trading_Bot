@@ -51,13 +51,13 @@ class InferenceEngine:
         self._buy_threshold = self._cfg.get("probability_threshold_buy", 0.65)
         self._sell_threshold = self._cfg.get("probability_threshold_sell", 0.35)
 
+        self._n_classes = 1
         # Build model
         self._model = self._build_model()
         self._model.eval()
 
         # Try JIT compilation for speed
         self._jit_model = None
-        self._try_jit_compile()
 
         # Feature builder
         self._feature_builder = FeatureBuilder(
@@ -115,12 +115,22 @@ class InferenceEngine:
                 )
                 # Handle both old (raw state_dict) and new (full checkpoint) formats
                 if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
-                    self._model.load_state_dict(checkpoint["model_state_dict"])
                     cfg = checkpoint.get("config", {})
+                    if "n_classes" in cfg and cfg["n_classes"] > 1:
+                        import torch.nn as nn
+                        self._n_classes = cfg["n_classes"]
+                        hidden = cfg.get("hidden_dim", self._hidden_dim)
+                        self._model.head = nn.Sequential(
+                            nn.Linear(hidden, 32),
+                            nn.ReLU(),
+                            nn.Dropout(0.0),
+                            nn.Linear(32, self._n_classes),
+                        )
+                    self._model.load_state_dict(checkpoint["model_state_dict"])
                     logger.info(
-                        f"Loaded model v1 from {self._model_path} "
+                        f"Loaded model v2 from {self._model_path} "
                         f"(features={cfg.get('input_features')}, "
-                        f"hidden={cfg.get('hidden_dim')})"
+                        f"hidden={cfg.get('hidden_dim')}, classes={self._n_classes})"
                     )
                 else:
                     self._model.load_state_dict(checkpoint)
@@ -172,13 +182,13 @@ class InferenceEngine:
 
     @torch.no_grad()
     def _predict(self, features: torch.Tensor) -> float:
-        """Run model inference. Returns probability 0-1.
-
-        Model now outputs raw logits, so we apply sigmoid here.
-        """
+        """Run model inference. Returns UP probability 0-1."""
         model = self._jit_model if self._jit_model is not None else self._model
         logits = model(features)
-        prob = torch.sigmoid(logits)
+        if self._n_classes > 1:
+            prob = torch.softmax(logits, dim=1)[:, 1]
+        else:
+            prob = torch.sigmoid(logits)
         return float(prob.item())
 
     @property

@@ -28,8 +28,8 @@ class PositionSizer:
         min_risk_reward: float = 1.5,
     ):
         self._sl_atr_mult = sl_atr_multiplier
-        self._sl_min_pips = sl_min_pips / 10_000  # Convert to price
-        self._sl_spread_buf = sl_spread_buffer_pips / 10_000
+        self._sl_min_raw = sl_min_pips
+        self._sl_spread_raw = sl_spread_buffer_pips
         self._min_rr = min_risk_reward
 
     def compute(
@@ -50,7 +50,13 @@ class PositionSizer:
                 "risk_reward_ratio": 0.0,
             }
 
-        atr = state.atr if state.atr > 0 else 0.0005  # Fallback
+        # Adapt point unit to Indian Rupee (₹1/pt) vs Forex (0.0001/pip)
+        is_rupee = entry_price > 50.0
+        pip_unit = 1.0 if is_rupee else 0.0001
+        sl_min_dist = self._sl_min_raw * pip_unit
+        sl_spread_buf = self._sl_spread_raw * pip_unit
+        default_atr = 15.0 if is_rupee else 0.0005
+        atr = state.atr if state.atr > 0 else default_atr
 
         # ── Stop Loss ─────────────────────────────────────────────
         if signal == SignalType.BUY:
@@ -60,21 +66,21 @@ class PositionSizer:
 
             # Use the more conservative (closer to entry) of the two
             sl = max(structure_sl, atr_sl) if structure_sl > 0 else atr_sl
-            sl -= self._sl_spread_buf  # Spread buffer
+            sl -= sl_spread_buf  # Spread buffer
 
             # Enforce minimum distance
-            if entry_price - sl < self._sl_min_pips:
-                sl = entry_price - self._sl_min_pips
+            if entry_price - sl < sl_min_dist:
+                sl = entry_price - sl_min_dist
 
         else:  # SELL
             structure_sl = state.last_swing_high
             atr_sl = entry_price + atr * self._sl_atr_mult
 
             sl = min(structure_sl, atr_sl) if structure_sl > 0 else atr_sl
-            sl += self._sl_spread_buf
+            sl += sl_spread_buf
 
-            if sl - entry_price < self._sl_min_pips:
-                sl = entry_price + self._sl_min_pips
+            if sl - entry_price < sl_min_dist:
+                sl = entry_price + sl_min_dist
 
         # ── Take Profit ───────────────────────────────────────────
         risk = abs(entry_price - sl)

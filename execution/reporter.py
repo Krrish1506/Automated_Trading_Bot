@@ -44,7 +44,8 @@ class TradeReporter:
         self.trade_counter = 0
 
     def record_trade(self, direction: str, entry_price: float, exit_price: float, 
-                     fib_level: float, ml_confidence: float, pattern: str, confluences: list[str]):
+                     fib_level: float, ml_confidence: float, pattern: str, confluences: list[str],
+                     symbol: str = "NIFTY50"):
         """Log a closed trade."""
         self.trade_counter += 1
         
@@ -55,16 +56,13 @@ class TradeReporter:
         
         return_pct = (exit_price - entry_price) / entry_price if direction == "BUY" else (entry_price - exit_price) / entry_price
         
-        # If we just use percentage return * position size. 
-        # But we'll let the engine pass the exact pnl_inr. For now, we expect it to be updated.
-        
         # Update capital
         self.current_capital += pnl_inr
         
         record = TradeRecord(
             trade_id=self.trade_counter,
             timestamp=datetime.now().isoformat(),
-            symbol="EUR/USD",
+            symbol=symbol,
             direction=direction,
             entry_price=entry_price,
             exit_price=exit_price,

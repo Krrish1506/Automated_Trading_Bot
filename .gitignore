@@ -23,13 +23,16 @@ pip-wheel-metadata/
 *.env
 
 # ─── ML Models & Large Data Files ─────────────────────────────────────────────
-models/
+models/*
+!models/.gitkeep
+data/*
+!data/.gitkeep
 *.h5
 *.pkl
 *.pt
 *.pth
 *.onnx
-data/
+*.npz
 *.csv
 *.parquet
 *.feather

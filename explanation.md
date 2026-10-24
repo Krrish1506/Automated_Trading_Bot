@@ -22,41 +22,41 @@ This means your system needs to be:
 
 ## 🏗️ Your Existing Architecture (What You Already Have)
 
-Looking at your codebase, you already have a very solid foundation:
+Looking at your codebase, you have a complete institutional-grade architecture:
 
 ```
-main.py              → Entry point, wires everything together
+main.py              → Entry point, wires event-driven trading loop
+server.py            → FastAPI backend for real-time WebSocket & REST
 core/
-  types.py           → All data structures (Candle, Signal, IndicatorState, etc.)
-  candle_buffer.py   → Rolling buffer of candles
-  event_bus.py       → Async pub/sub event system
+  types.py           → Strongly-typed data structures (Candle, TradeSignal, etc.)
+  candle_buffer.py   → Rolling 500-candle buffer with 5m aggregation
+  event_bus.py       → High-speed async pub/sub event bus
 indicators/
-  alpha_trend.py     → Trend direction detection
-  alpha_trend_plus.py→ Confirmed trend strength
-  fibonacci.py       → Fib retracements + extensions
-  harmonic.py        → XABCD harmonic pattern detection
-  hidden_zone.py     → Supply/Demand zones
-  holt_winters_rsi.py→ RSI with forecasting (Holt-Winters exponential smoothing)
-  predictive_macd.py → MACD with crossover prediction
-  smc_engine.py      → Smart Money Concepts (BOS, CHoCH, Order Blocks)
+  alpha_trend.py     → Trend direction detection via dynamic ATR bands
+  alpha_trend_plus.py→ Confirmed trend strength & volume surge filter
+  fibonacci.py       → Dynamic Fib retracements + volume-weighted pivots
+  harmonic.py        → XABCD harmonic pattern detection (Gartley, Bat, Crab, etc.)
+  hidden_zone.py     → Institutional supply/demand order blocks
+  holt_winters_rsi.py→ Exponentially smoothed predictive RSI
+  predictive_macd.py → Predictive MACD histogram acceleration
+  smc_engine.py      → Smart Money Concepts (BOS, CHoCH, Market Structure)
 decision/
-  confluence.py      → Checks if 3+ indicators agree before a signal
-  signal_generator.py→ Produces BUY/SELL/HOLD with entry/SL/TP
-  scorer.py          → Weights each indicator's contribution
-  risk_filter.py     → Blocks signals that violate risk rules
-  position_sizing.py → Calculates how many units to buy/sell
+  confluence.py      → Confluence matrix (requires ≥ 3 systems to agree)
+  signal_generator.py→ Signal fusion engine (BUY / SELL / HOLD)
+  scorer.py          → Multi-factor composite weight scorer
+  risk_filter.py     → Institutional risk filters (spread, ATR spike, daily loss)
+  position_sizing.py → Dynamic rupee (₹) sizing, SL distance, & 1.5+ RR targets
 forecast/
-  model.py           → LSTM architecture
-  train_lstm.py      → Training pipeline
-  inference.py       → Real-time prediction
-backtest/            → Historical simulation
+  model.py           → PyTorch LSTM & Transformer architecture
+  train_lstm_v2.py   → Multi-model walk-forward ensemble trainer (LSTM+XGB+LGBM+Meta)
+  data_pipeline.py   → 5m feature engineering & z-score scaler
+  inference.py       → Low-latency JIT-compiled inference (<5ms)
+scripts/
+  download_nifty.py  → 5-minute historical NSE candle downloader
+tests/
+  test_all.py        → Core engine integration & indicator unit tests
+  test_nse_dataset.py→ 5m dataset, schema, latency, and model verification tests
 ```
-
-**Your architecture is already correct.** What you need now is to:
-1. Understand HOW each piece thinks
-2. Connect it to the college's fake stock API
-3. Train the LSTM on synthetic/historical data
-4. Handle the competition's surprise constraints on day-of
 
 ---
 

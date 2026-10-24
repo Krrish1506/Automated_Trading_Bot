@@ -62,7 +62,7 @@ def load_config(path: str = "config.yaml") -> dict:
 async def run_live(config: dict) -> None:
     """Run the live trading agent."""
     logger.info("=" * 60)
-    logger.info("  AI Trading Agent — EUR/USD M5")
+    logger.info("  AI Trading Agent — NSE NIFTY50 M5 (₹ INR)")
     logger.info("  Starting in LIVE mode")
     logger.info("=" * 60)
 
@@ -197,21 +197,21 @@ async def run_dry(config: dict) -> None:
 
     await event_bus.start()
 
-    # Generate synthetic EUR/USD-like candles
+    # Generate synthetic NSE NIFTY50 (₹) candles
     np.random.seed(42)
-    base_price = 1.08500
+    base_price = 24000.0
     n_candles = 300
 
     synthetic_candles = []
     price = base_price
 
     for i in range(n_candles):
-        change = np.random.normal(0, 0.00030)
+        change = np.random.normal(0, 15.0)
         o = price
         c = price + change
-        h = max(o, c) + abs(np.random.normal(0, 0.00015))
-        l = min(o, c) - abs(np.random.normal(0, 0.00015))
-        v = max(100, np.random.normal(500, 200))
+        h = max(o, c) + abs(np.random.normal(0, 8.0))
+        l = min(o, c) - abs(np.random.normal(0, 8.0))
+        v = max(1000, np.random.normal(50000, 15000))
 
         synthetic_candles.append({
             "open": o,
@@ -222,7 +222,7 @@ async def run_dry(config: dict) -> None:
         })
         price = c
 
-    logger.info(f"Feeding {n_candles} synthetic candles...")
+    logger.info(f"Feeding {n_candles} synthetic NIFTY50 candles...")
     await ws_feed.feed_historical(synthetic_candles, delay=0.01)
 
     # Wait for pipeline to process
@@ -244,7 +244,7 @@ def run_backtest(config: dict) -> None:
     from backtest.engine import BacktestEngine
 
     bt_cfg = config.get("backtest", {})
-    data_path = bt_cfg.get("data_path", "data/eurusd_m5.csv")
+    data_path = bt_cfg.get("data_path", "data/nifty50_5m.csv")
 
     engine = BacktestEngine(config)
     result = engine.run(data_path)
@@ -259,7 +259,7 @@ def run_backtest(config: dict) -> None:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="AI Trading Agent — EUR/USD M5"
+        description="AI Trading Agent — NSE NIFTY50 M5 (₹ INR)"
     )
     parser.add_argument(
         "--config", default="config.yaml",

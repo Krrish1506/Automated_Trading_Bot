@@ -56,8 +56,8 @@ ATR_GATE = 2.5           # ATR multiplier for UP/DOWN threshold (increased for 3
 N_FOLDS = 4
 TEST_RATIO = 0.20
 MODEL_DIR = "models"
-DATA_PATH = "data/nifty50_1h.csv"          # <-- NIFTY50 training data
-CACHE_PATH = "data/features_v2_nifty_cache.npz"  # <-- separate cache
+DATA_PATH = "data/nifty50_5m.csv"          # <-- NIFTY50 5-minute training data
+CACHE_PATH = "data/features_v2_nifty_5m_cache.npz"  # <-- 5m separate cache
 
 # Features to keep (selected by expected importance for M5 forex)
 SELECTED_FEATURES = [
@@ -557,7 +557,7 @@ def main():
 
     # ─── Print Results ────────────────────────────────────────────
     print("\n" + "=" * 70)
-    print("  ENSEMBLE TRAINING REPORT v2 — EUR/USD M5")
+    print("  ENSEMBLE TRAINING REPORT v2 -- NSE NIFTY50 M5 (INR)")
     print("=" * 70)
 
     # Individual accuracies

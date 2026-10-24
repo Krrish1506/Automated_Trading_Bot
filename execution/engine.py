@@ -101,10 +101,11 @@ class ExecutionEngine:
         self._trade_history.append(trade_record)
         self._trade_count += 1
 
+        fmt = ".2f" if signal.entry_price > 50 else ".5f"
         logger.info(
-            f"TRADE EXECUTED: {signal.signal.value} EUR/USD @ "
-            f"{signal.entry_price:.5f} | SL={signal.stop_loss:.5f} | "
-            f"TP={signal.take_profit:.5f} | RR={signal.risk_reward_ratio:.2f} | "
+            f"TRADE EXECUTED: {signal.signal.value} {signal.symbol} @ "
+            f"₹{signal.entry_price:{fmt}} | SL=₹{signal.stop_loss:{fmt}} | "
+            f"TP=₹{signal.take_profit:{fmt}} | RR={signal.risk_reward_ratio:.2f} | "
             f"Confidence={signal.confidence:.0f}%"
         )
 

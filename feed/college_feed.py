@@ -65,9 +65,10 @@ class CollegeFeed:
     async def _stream_finnhub(self):
         """Testing phase Finnhub stream."""
         ws_url = f"wss://ws.finnhub.io?token={self._fh_key}"
+        fh_sym = self._cfg.get("finnhub_symbol", "NSE:NIFTY50")
         try:
             async with websockets.connect(ws_url) as ws:
-                await ws.send(json.dumps({"type": "subscribe", "symbol": "OANDA:EUR_USD"}))
+                await ws.send(json.dumps({"type": "subscribe", "symbol": fh_sym}))
                 async for message in ws:
                     if not self._running: break
                     data = json.loads(message)
@@ -82,9 +83,10 @@ class CollegeFeed:
     async def _stream_twelvedata(self):
         """Testing phase TwelveData stream."""
         ws_url = f"wss://ws.twelvedata.com/v1/quotes/price?apikey={self._td_key}"
+        td_sym = self._cfg.get("twelvedata_symbol", "NIFTY 50")
         try:
             async with websockets.connect(ws_url) as ws:
-                await ws.send(json.dumps({"action": "subscribe", "params": {"symbols": "EUR/USD"}}))
+                await ws.send(json.dumps({"action": "subscribe", "params": {"symbols": td_sym}}))
                 async for message in ws:
                     if not self._running: break
                     data = json.loads(message)
@@ -142,7 +144,8 @@ class CollegeFeed:
 
     async def _publish_tick(self, price: float):
         """Publish price to event bus."""
-        spread = 0.00015
+        # 1.0 Rupee spread for Indian market stocks/indices, 0.00015 for forex
+        spread = 1.0 if price > 50.0 else 0.00015
         tick = TickEvent(
             timestamp=time.time(),
             bid=price - spread/2,

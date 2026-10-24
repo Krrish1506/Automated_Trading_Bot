@@ -50,6 +50,7 @@ class SignalGenerator:
     ):
         self._bus = event_bus
         self._buffer = candle_buffer
+        self._symbol = config.get("symbol", "NIFTY50")
 
         decision_cfg = config.get("decision", {})
         risk_cfg = config.get("risk", {})
@@ -156,7 +157,7 @@ class SignalGenerator:
         pos = self._position_sizer.compute(signal_type, state, entry_price)
 
         return TradeSignal(
-            symbol="EUR/USD",
+            symbol=self._symbol,
             current_price=state.current_price,
             market_state=market_state,
             signal=signal_type,
